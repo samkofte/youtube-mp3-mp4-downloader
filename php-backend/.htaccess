@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Direct all /api/ requests to api.php
+    RewriteRule ^api/(.*)$ api.php/$1 [QSA,L]
+    
+    # Direct everything else to index.html if file/dir doesn't exist (SPA routing)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.html [L]
+</IfModule>

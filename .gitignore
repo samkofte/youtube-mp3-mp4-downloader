@@ -1,0 +1,6 @@
+node_modules/
+php-backend/cache/
+php-backend/temp/
+youtube-platform-deploy.zip
+.gemini/
+*.log
