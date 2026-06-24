@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
 const { isValidSearchQuery, isValidVideoId } = require('../utils/validator');
 const { searchCache, videoCache } = require('../services/cacheService');
 const ytService = require('../services/ytdlpService');
@@ -104,65 +105,110 @@ router.get('/stream', async (req, res) => {
 });
 
 // GET /api/download/mp4?id=&quality=
-router.get('/download/mp4', (req, res) => {
+router.get('/download/mp4', async (req, res) => {
     const { id, quality } = req.query;
     if (!isValidVideoId(id)) {
         return res.status(400).json({ error: 'Invalid video ID' });
     }
 
     const height = quality || '1080';
-    // Format string: bestvideo with height <= requested + bestaudio
     const format = `bestvideo[ext=mp4][height<=${height}]+bestaudio[ext=m4a]/best[ext=mp4]/best`;
 
-    res.setHeader('Content-Disposition', `attachment; filename="${id}_${height}p.mp4"`);
-    res.setHeader('Content-Type', 'video/mp4');
+    const fs = require('fs');
+    const tempDir = path.join(__dirname, '../temp');
+    if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+    }
+    const tempFile = path.join(tempDir, `${id}_${height}p_${Date.now()}.mp4`);
 
     const ytDlp = spawn('yt-dlp', [
         '-f', format,
-        '-o', '-', // Output to stdout
+        '-o', tempFile,
         `https://www.youtube.com/watch?v=${id}`
     ]);
 
-    ytDlp.stdout.pipe(res);
-
-    ytDlp.stderr.on('data', (data) => {
-        console.error(`yt-dlp download stderr: ${data}`);
-    });
-
     ytDlp.on('close', (code) => {
-        if (code !== 0) console.error(`yt-dlp process exited with code ${code}`);
+        if (code === 0 && fs.existsSync(tempFile)) {
+            res.download(tempFile, `${id}_${height}p.mp4`, (err) => {
+                // Delete temp file after download completion or error
+                fs.unlinkSync(tempFile);
+            });
+        } else {
+            console.error(`yt-dlp download failed with code ${code}`);
+            res.status(500).json({ error: 'Download failed' });
+            if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
+        }
     });
 });
 
 // GET /api/download/mp3?id=&quality=
 router.get('/download/mp3', (req, res) => {
-    const { id, quality } = req.query; // quality in kbps, e.g., 128, 192, 320
+    const { id, quality } = req.query;
     if (!isValidVideoId(id)) {
         return res.status(400).json({ error: 'Invalid video ID' });
     }
 
     const kbps = ['128', '192', '320'].includes(quality) ? quality : '192';
-
-    res.setHeader('Content-Disposition', `attachment; filename="${id}_${kbps}kbps.mp3"`);
-    res.setHeader('Content-Type', 'audio/mpeg');
+    const fs = require('fs');
+    const tempDir = path.join(__dirname, '../temp');
+    if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+    }
+    const tempTemplate = path.join(tempDir, `${id}_${kbps}k_${Date.now()}`);
+    const expectedMp3 = `${tempTemplate}.mp3`;
 
     const ytDlp = spawn('yt-dlp', [
-        '-x', // extract audio
+        '-x',
         '--audio-format', 'mp3',
         '--audio-quality', `${kbps}K`,
-        '-o', '-', // Output to stdout
+        '-o', `${tempTemplate}.%(ext)s`,
         `https://www.youtube.com/watch?v=${id}`
     ]);
 
-    ytDlp.stdout.pipe(res);
-
-    ytDlp.stderr.on('data', (data) => {
-        console.error(`yt-dlp mp3 download stderr: ${data}`);
-    });
-
     ytDlp.on('close', (code) => {
-        if (code !== 0) console.error(`yt-dlp process exited with code ${code}`);
+        if (code === 0 && fs.existsSync(expectedMp3)) {
+            res.download(expectedMp3, `${id}_${kbps}kbps.mp3`, (err) => {
+                fs.unlinkSync(expectedMp3);
+            });
+        } else {
+            console.error(`yt-dlp mp3 download failed with code ${code}`);
+            res.status(500).json({ error: 'Audio download failed' });
+            if (fs.existsSync(expectedMp3)) fs.unlinkSync(expectedMp3);
+        }
     });
+});
+
+// GET /api/suggest?q=
+router.get('/suggest', async (req, res) => {
+    try {
+        const query = req.query.q;
+        if (!query) {
+            return res.json([]);
+        }
+        const url = `https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=${encodeURIComponent(query)}`;
+        const http = require('https');
+        
+        http.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (response) => {
+            let data = '';
+            response.on('data', (chunk) => { data += chunk; });
+            response.on('end', () => {
+                try {
+                    const parsed = JSON.parse(data);
+                    if (parsed && parsed[1]) {
+                        res.json(parsed[1]);
+                    } else {
+                        res.json([]);
+                    }
+                } catch (e) {
+                    res.json([]);
+                }
+            });
+        }).on('error', (err) => {
+            res.json([]);
+        });
+    } catch (error) {
+        res.json([]);
+    }
 });
 
 // GET /api/history
