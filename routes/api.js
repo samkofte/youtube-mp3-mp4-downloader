@@ -127,14 +127,18 @@ router.get('/download/mp4', async (req, res) => {
         `https://www.youtube.com/watch?v=${id}`
     ]);
 
+    let stderr = '';
+    ytDlp.stderr.on('data', (data) => {
+        stderr += data.toString();
+    });
+
     ytDlp.on('close', (code) => {
         if (code === 0 && fs.existsSync(tempFile)) {
             res.download(tempFile, `${id}_${height}p.mp4`, (err) => {
-                // Delete temp file after download completion or error
                 fs.unlinkSync(tempFile);
             });
         } else {
-            console.error(`yt-dlp download failed with code ${code}`);
+            console.error(`yt-dlp download failed with code ${code}. Stderr: ${stderr}`);
             res.status(500).json({ error: 'Download failed' });
             if (fs.existsSync(tempFile)) fs.unlinkSync(tempFile);
         }
@@ -165,13 +169,18 @@ router.get('/download/mp3', (req, res) => {
         `https://www.youtube.com/watch?v=${id}`
     ]);
 
+    let stderr = '';
+    ytDlp.stderr.on('data', (data) => {
+        stderr += data.toString();
+    });
+
     ytDlp.on('close', (code) => {
         if (code === 0 && fs.existsSync(expectedMp3)) {
             res.download(expectedMp3, `${id}_${kbps}kbps.mp3`, (err) => {
                 fs.unlinkSync(expectedMp3);
             });
         } else {
-            console.error(`yt-dlp mp3 download failed with code ${code}`);
+            console.error(`yt-dlp mp3 download failed with code ${code}. Stderr: ${stderr}`);
             res.status(500).json({ error: 'Audio download failed' });
             if (fs.existsSync(expectedMp3)) fs.unlinkSync(expectedMp3);
         }
