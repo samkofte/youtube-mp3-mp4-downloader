@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const ffmpegPath = require('ffmpeg-static');
 const { isValidSearchQuery, isValidVideoId } = require('../utils/validator');
 const { searchCache, videoCache } = require('../services/cacheService');
 const ytService = require('../services/ytdlpService');
@@ -122,6 +123,7 @@ router.get('/download/mp4', async (req, res) => {
     const tempFile = path.join(tempDir, `${id}_${height}p_${Date.now()}.mp4`);
 
     const ytDlp = spawn('yt-dlp', [
+        '--ffmpeg-location', ffmpegPath,
         '-f', format,
         '-o', tempFile,
         `https://www.youtube.com/watch?v=${id}`
@@ -162,6 +164,7 @@ router.get('/download/mp3', (req, res) => {
     const expectedMp3 = `${tempTemplate}.mp3`;
 
     const ytDlp = spawn('yt-dlp', [
+        '--ffmpeg-location', ffmpegPath,
         '-x',
         '--audio-format', 'mp3',
         '--audio-quality', `${kbps}K`,
