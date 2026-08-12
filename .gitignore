@@ -1,5 +1,4 @@
-node_modules/
-php-backend/cache/
-php-backend/temp/
-.gemini/
-*.log
+﻿temp/
+bin/
+cache/
+*.zip

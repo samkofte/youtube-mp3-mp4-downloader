@@ -1,0 +1,16 @@
+{
+  "name": "YT Streamer",
+  "short_name": "YT Streamer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "description": "YouTube alternative using yt-dlp",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzNiODJmNiI+PHBhdGggZD0iTTE5LjYxNSAzLjE4NGMtMy42MDQtLjI0Ni0xMS42MzEtLjI0NS0xNS4yMyAwLTMuODk3LjI2Ni00LjM1NiAyLjYyLTQuMzg1IDguODE2LjAyOSA2LjE4NS40ODQgOC41NDkgNC4zODUgOC44MTYgMy42LjI0NSAxMS42MjYuMjQ2IDE1LjIzIDAgMy44OTctLjI2NiA0LjM1Ni0yLjYyIDQuMzg1LTguODE2LS4wMjktNi4xODUtLjQ4NC04LjU0OS00LjM4NS04LjgxNnptLTEwLjYxNSAxMi44MTZ2LThsOCAzLjk5My04IDQuMDA3eiIvPjwvc3ZnPg==",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

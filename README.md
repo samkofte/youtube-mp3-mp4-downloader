@@ -1,64 +1,50 @@
-# YouTube MP3 & MP4 Downloader Platform
+# YouTube MP3/MP4 Downloader & Streamer
 
-Bu proje, herhangi bir harici ücretli/ücretsiz YouTube API'si (Google Data API vb.) kullanmadan, arka planda tamamen **`yt-dlp`** ve **`ffmpeg`** kullanarak YouTube videolarını arama, izleme (HTML5 player ile) ve yüksek kalitede MP3/MP4 formatlarında indirme olanağı sunan modern, duyarlı ve performanslı bir Full Stack web uygulamasıdır.
+A standalone, zero-configuration PHP application that allows users to search for YouTube videos, stream them directly to bypass restrictions, and download them in high-quality MP4 and MP3 formats. 
 
-Proje hem **Node.js (Express)** backend mimarisine hem de paylaşımlı Linux hostinglerde doğrudan çalıştırılabilmesi için özel olarak hazırlanmış **PHP** backend mimarisine sahiptir.
+This project requires **NO Node.js, NO NPM, and NO database**. It runs seamlessly on any shared Linux hosting (like cPanel) out of the box using a smart file-based caching system for blazing-fast search results.
 
----
+## 🚀 Features
 
-## 🌟 Özellikler
-*   **Gerçek Zamanlı Arama & Öneriler (Autocomplete):** Kullanıcı arama çubuğuna yazdıkça, YouTube'un otomatik tamamlama öneri motorundan anlık sonuçlar listelenir.
-*   **Arama Sonuçları:** İlk 20 sonuç; kapak resmi, süre, kanal adı, izlenme sayısı ve yayınlanma tarihi bilgileriyle birlikte listelenir.
-*   **HTML5 Video Player:** İleri/geri sarma desteği (Range Request) sunan özel video oynatıcı.
-*   **MP4 Video İndirme:** 360p, 480p, 720p, 1080p kalitelerinde ses ve görüntüyü sunucu tarafında `ffmpeg` ile birleştirerek gerçek MP4 indirir.
-*   **MP3 Ses İndirme:** 128kbps, 192kbps ve 320kbps kalitelerinde ses dönüştürme seçeneği.
-*   **API Playground & Entegrasyon Dokümantasyonu (`/docs.html`):** Mobil geliştiriciler (Flutter, React Native vb.) için canlı test alanı, JSON çıktıları ve entegrasyon kod örnekleri içeren görsel dökümantasyon sayfası.
-*   **PWA Desteği:** Offline arayüz desteği ve telefona/bilgisayara uygulama olarak kurulabilme.
-*   **Güvenlik:** Command Injection saldırılarına karşı sıkı Regex filtreleri ve Rate Limit koruması.
-*   **Performans:** Arama sonuçları için 30 dakika, video detayları için 24 saat in-memory ve dosya tabanlı cache sistemi.
+- **Blazing Fast Searches:** Intelligent file-based caching ensures that repeated searches load instantly (0.001s).
+- **Direct Streaming:** Proxies streams directly to the client, bypassing common network restrictions.
+- **High-Quality Downloads:** Merges video and audio seamlessly for 1080p MP4s and crisp 320k MP3s using integrated `ffmpeg`.
+- **Zero Configuration:** Simply upload the files to your server and it works. No databases or complex environments to set up.
+- **Beautiful Modern UI:** Dark mode by default with a responsive, app-like experience.
+- **Developer API:** Includes a fully documented REST API for mobile app integration.
 
----
+## 📸 Screenshots
 
-## 🛠️ Kurulum ve Çalıştırma
+### Modern Dark UI & Instant Search
+![YT Streamer Homepage](screenshots/home.png)
+*The main interface featuring instantaneous trending video loads thanks to smart file-based caching.*
 
-### Alternatif 1: Node.js ile Lokal/Sunucu Kurulumu (Zero-Config)
+### Video Player & Downloader
+![Video Player](screenshots/video-player.png)
+*Direct YouTube playback via embed, complete with channel avatars, descriptions, and dynamic MP4/MP3 download options.*
 
-Projeyi bilgisayarınızda çalıştırmak oldukça basittir, `ffmpeg-static` kütüphanesi sayesinde bilgisayarınıza manuel olarak `ffmpeg` kurmanıza gerek kalmaz.
+### Interactive API Documentation
+![API Documentation](screenshots/api-docs.png)
+*Built-in interactive API documentation (`docs.html`) for seamless integration with mobile apps (Flutter, React Native, etc).*
 
-1.  Gerekli paketleri kurun:
-    ```bash
-    npm install
-    ```
-2.  Uygulamayı başlatın:
-    ```bash
-    npm start
-    ```
-3.  Tarayıcınızda açın:
-    *   **Uygulama Arayüzü:** `http://localhost:3000`
-    *   **API Test & Dokümantasyon Arayüzü:** `http://localhost:3000/docs.html`
+## 🛠️ Installation (cPanel / Shared Hosting)
 
-> **Gereksinimler:** Sunucuda/Bilgisayarda `yt-dlp` yüklü olmalıdır. En güncel sürüm için `pip install -U yt-dlp` komutunu kullanabilirsiniz.
+1. Download the latest `youtube-saf-php-kurulum.zip` release.
+2. Upload the ZIP file to your server (e.g., via cPanel File Manager).
+3. Extract the contents into your desired folder (e.g., `public_html/youtube`).
+4. **Important:** Give execute permissions (`755`) to the Linux binaries located in the `bin/` directory:
+   - `bin/yt-dlp`
+   - `bin/ffmpeg`
+5. Visit your site and enjoy!
 
----
+*(For Windows local testing, the repo also includes `.exe` binaries that are automatically detected and used).*
 
-### Alternatif 2: PHP Hosting Kurulumu (Subdomain / Ana Dizin)
+## 🔧 Built With
 
-1.  **`youtube-platform-deploy.zip`** arşivini hosting dosya yöneticisinde ilgili klasöre yükleyin ve çıkarın.
-2.  Klasörün içindeki `bin/yt-dlp` dosyasına yazma ve çalıştırma yetkisi verin (`chmod 755`).
-3.  Sunucuda Python3 kurulu olduğundan emin olun (cPanel -> *Setup Python App* altından aktif edebilirsiniz).
-4.  Eğer sunucunuzda global `ffmpeg` yüklü değilse, Linux uyumlu static `ffmpeg` binary dosyasını indirip `bin` klasörüne yükleyin ve `chmod 755` izni verin.
-5.  Uygulamanıza ait API dökümantasyonuna `https://altalanadiniz.com/docs.html` adresinden ulaşabilirsiniz.
+- **Backend:** Pure PHP (Zero Dependencies)
+- **Frontend:** Vanilla JavaScript, HTML5, CSS3
+- **Engines:** `yt-dlp` and `ffmpeg` (Local Binaries)
 
----
+## 📄 License
 
-## 📂 Klasör Yapısı
-*   `/public`: HTML5 Video Player, API Playground (`docs.html`), Tailwind CSS ve Vanilla JS içeren frontend dosyaları.
-*   `/routes`: API rotaları (Node.js).
-*   `/services`: `yt-dlp` çalıştırma ve önbellekleme servisleri.
-*   `/utils`: Güvenlik doğrulama filtreleri.
-*   `/php-backend`: PHP hosting için `api.php` ve `.htaccess` yönlendirme dosyası.
-
----
-
-## 🔒 Lisans
-Bu proje MIT lisansı altında lisanslanmıştır.
+This project is licensed under the MIT License.
